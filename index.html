@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Call Space Shuttle Battle</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="background-layer background-layer--stars"></div>
+    <div class="background-layer background-layer--grid"></div>
+
+    <main class="app-shell">
+      <header class="app-header">
+        <div class="logo-lockup">
+          <span class="logo-pill">CSB</span>
+          <div class="logo-text">
+            <h1>Call Space Shuttle Battle</h1>
+            <p class="subtitle">Command the shuttle. Control the void.</p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button id="btn-help" class="ghost-button">How to Play</button>
+          <button id="btn-theme" class="ghost-button ghost-button--icon" aria-label="Toggle theme">
+            <span class="icon-moon"></span>
+          </button>
+
+          <div class="user-pod" aria-label="Player profile and total points">
+            <div class="user-avatar">
+              <span class="user-avatar__initial">C</span>
+            </div>
+            <div class="user-meta">
+              <span class="user-meta__label">Commander</span>
+              <span class="user-meta__points">
+                Total points:&nbsp;<span id="total-points">0</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section class="layout">
+        <aside class="panel panel--left">
+          <div class="panel-section">
+            <h2>Mission Status</h2>
+            <div class="stat-grid">
+              <div class="stat">
+                <span class="stat-label">Score</span>
+                <span id="score" class="stat-value">0</span>
+              </div>
+              <div class="stat">
+                <span class="stat-label">Wave</span>
+                <span id="wave" class="stat-value">1</span>
+              </div>
+              <div class="stat">
+                <span class="stat-label">Shuttle HP</span>
+                <div class="health-bar">
+                  <div id="health-bar-fill" class="health-bar__fill"></div>
+                </div>
+              </div>
+              <div class="stat">
+                <span class="stat-label">Difficulty</span>
+                <span id="difficulty-label" class="stat-chip">Normal</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-section">
+            <h2>Controls</h2>
+            <ul class="control-list">
+              <li><span class="key">W / ↑</span> Move Up</li>
+              <li><span class="key">S / ↓</span> Move Down</li>
+              <li><span class="key">A / ←</span> Move Left</li>
+              <li><span class="key">D / →</span> Move Right</li>
+              <li><span class="key">Space</span> Fire</li>
+              <li><span class="key">P</span> Pause</li>
+              <li><span class="key">Mouse</span> Move Shuttle</li>
+              <li><span class="key">Click</span> Fire (when over space)</li>
+            </ul>
+          </div>
+
+          <div class="panel-section panel-section--compact">
+            <h2>Mode</h2>
+            <div class="toggle-group" role="radiogroup" aria-label="Difficulty">
+              <button class="toggle-button toggle-button--active" data-difficulty="normal">
+                Normal
+              </button>
+              <button class="toggle-button" data-difficulty="hard">
+                Hard
+              </button>
+              <button class="toggle-button" data-difficulty="endless">
+                Endless
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        <section class="game-shell">
+          <div class="game-frame">
+            <canvas id="game-canvas" width="960" height="540" aria-label="Call Space Shuttle Battle game area"></canvas>
+
+            <div id="overlay-welcome" class="overlay overlay--center overlay--visible">
+              <div class="overlay-card overlay-card--welcome">
+                <h2>Welcome, Commander</h2>
+                <p>
+                  This is Call Space Shuttle Battle. A focused, fast-paced mission
+                  where you command a single shuttle against impossible odds.
+                </p>
+                <div class="overlay-meta">
+                  <span class="meta-pill">No downloads</span>
+                  <span class="meta-pill">Keyboard controls</span>
+                  <span class="meta-pill">Short sessions</span>
+                </div>
+                <button id="btn-welcome-start" class="primary-button primary-button--lg">
+                  Start Game
+                </button>
+              </div>
+            </div>
+
+            <div id="overlay-select" class="overlay overlay--center">
+              <div class="overlay-card overlay-card--select">
+                <h2>Select Your Shuttle</h2>
+                <p>
+                  Each shuttle tunes your mission slightly differently. Choose the one that matches
+                  how you like to fly.
+                </p>
+
+                <div class="shuttle-layout">
+                  <div class="shuttle-layout__preview">
+                    <canvas
+                      id="shuttle-preview"
+                      width="280"
+                      height="160"
+                      aria-label="Preview of selected shuttle"
+                    ></canvas>
+                    <div class="shuttle-preview-caption">
+                      Live preview of your craft in flight.
+                    </div>
+                  </div>
+
+                  <div class="shuttle-grid" role="radiogroup" aria-label="Shuttle selection">
+                  <button class="shuttle-card shuttle-card--active" data-shuttle="vanguard" aria-pressed="true">
+                    <div class="shuttle-card__badge">Balanced</div>
+                    <div class="shuttle-card__name">Vanguard Arrow</div>
+                    <p class="shuttle-card__desc">
+                      The standard Call Fleet shuttle. Reliable handling, steady fire rate, no surprises.
+                    </p>
+                    <div class="shuttle-card__stats">
+                      <span class="badge">Speed: Medium</span>
+                      <span class="badge">Armor: Medium</span>
+                      <span class="badge">Fire rate: Standard</span>
+                    </div>
+                  </button>
+
+                  <button class="shuttle-card" data-shuttle="aurora" aria-pressed="false">
+                    <div class="shuttle-card__badge shuttle-card__badge--tank">Durable</div>
+                    <div class="shuttle-card__name">Aurora Bastion</div>
+                    <p class="shuttle-card__desc">
+                      Heavier armor with a calmer pace. Forgiving for newer pilots who want more time to react.
+                    </p>
+                    <div class="shuttle-card__stats">
+                      <span class="badge">Speed: Lower</span>
+                      <span class="badge">Armor: High</span>
+                      <span class="badge">Fire rate: Standard</span>
+                    </div>
+                  </button>
+
+                  <button class="shuttle-card" data-shuttle="phantom" aria-pressed="false">
+                    <div class="shuttle-card__badge shuttle-card__badge--assault">Aggressive</div>
+                    <div class="shuttle-card__name">Phantom Comet</div>
+                    <p class="shuttle-card__desc">
+                      Lightweight strike craft. Extremely agile with a faster firing cadence, but fragile.
+                    </p>
+                    <div class="shuttle-card__stats">
+                      <span class="badge">Speed: High</span>
+                      <span class="badge">Armor: Low</span>
+                      <span class="badge">Fire rate: Fast</span>
+                    </div>
+                  </button>
+                  </div>
+                </div>
+                <button id="btn-select-confirm" class="primary-button primary-button--lg">
+                  Launch Mission
+                </button>
+              </div>
+            </div>
+
+            <div id="overlay-pause" class="overlay overlay--corner">
+              <div class="overlay-chip">
+                Paused &mdash; press <span class="key-inline">P</span> to resume
+              </div>
+            </div>
+
+            <div id="overlay-gameover" class="overlay overlay--center">
+              <div class="overlay-card overlay-card--danger">
+                <h2>Shuttle Destroyed</h2>
+                <p>Your mission has ended. Debrief and re-engage when ready.</p>
+                <dl class="summary-grid">
+                  <div>
+                    <dt>Final Score</dt>
+                    <dd id="final-score">0</dd>
+                  </div>
+                  <div>
+                    <dt>Highest Wave</dt>
+                    <dd id="final-wave">1</dd>
+                  </div>
+                </dl>
+                <button id="btn-restart" class="primary-button">
+                  Launch Again
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <footer class="game-footer">
+            <p>
+              Designed for focus and clarity. No ads, no clutter &mdash; just you, your shuttle, and the void.
+            </p>
+          </footer>
+        </section>
+
+        <aside class="panel panel--right">
+          <div class="panel-section">
+            <h2>Mission Log</h2>
+            <ol id="log-list" class="log-list" aria-live="polite"></ol>
+          </div>
+
+          <div class="panel-section panel-section--compact">
+            <h2>Audio</h2>
+            <label class="toggle-row">
+              <span>Effects</span>
+              <input id="effects-toggle" type="checkbox" checked />
+            </label>
+            <label class="toggle-row">
+              <span>Music</span>
+              <input id="music-toggle" type="checkbox" checked />
+            </label>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <dialog id="help-dialog" class="help-dialog">
+      <div class="help-dialog__content">
+        <header class="help-dialog__header">
+          <h2>How to Play</h2>
+          <button id="btn-help-close" class="icon-button" aria-label="Close help">
+            ✕
+          </button>
+        </header>
+        <div class="help-dialog__body">
+          <p>
+            You pilot the last operational shuttle in the Call Fleet. Survive incoming waves, collect points,
+            and push deeper into enemy-controlled space.
+          </p>
+          <ul>
+            <li>Use the movement keys to dodge incoming ships and projectiles.</li>
+            <li>Fire continuously to clear paths through enemy formations.</li>
+            <li>Higher difficulties increase enemy speed and fire rate.</li>
+          </ul>
+          <p>
+            Missions are short and focused. Perfect for quick sessions while still leaving room for mastery.
+          </p>
+        </div>
+        <footer class="help-dialog__footer">
+          <button id="btn-help-ok" class="primary-button">Got it</button>
+        </footer>
+      </div>
+    </dialog>
+
+    <script src="script.js"></script>
+  </body>
+  </html>
+
